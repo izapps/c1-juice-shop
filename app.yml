@@ -42,9 +42,9 @@ spec:
         imagePullPolicy: Always
         env:
         - name: TREND_AP_KEY
-          value: 325a65a5-03ba-4095-8a99-a4486fad6ef6
+          value: $JUICE_KEY
         - name: TREND_AP_SECRET
-          value: 0bf41ec4-5c36-4dcd-9db9-53fc7e384fb4
+          value: $JUICE_SECRET
         ports:
         - containerPort: 3000
       imagePullSecrets:
