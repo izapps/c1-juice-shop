@@ -1,4 +1,3 @@
-"app.js" 9L, 203C                                                                                                                                                                       1,1           All
 /*
  * Copyright (c) 2014-2021 Bjoern Kimminich.
  * SPDX-License-Identifier: MIT
