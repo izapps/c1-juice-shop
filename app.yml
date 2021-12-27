@@ -3,6 +3,7 @@ kind: Service
 metadata:
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
   name: c1-juice-shop
   labels:
     app: c1-juice-shop
