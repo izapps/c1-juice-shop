@@ -12,44 +12,6 @@ node {
         dbuild = docker.build("${REPOSITORY}:$BUILD_NUMBER")
       }
     }
-    parallel (
-      "Test": {
-        //script {
-        //  sh "python tests/test_app.py"
-        //}
-        echo 'All functional tests passed'
-      },
-      "Check Image (pre-Registry)": {
-        smartcheckScan([
-          imageName: "${REPOSITORY}:$BUILD_NUMBER",
-          smartcheckHost: "${DSSC_SERVICE}",
-          smartcheckCredentialsId: "smartcheck-auth",
-          insecureSkipTLSVerify: true,
-          insecureSkipRegistryTLSVerify: true,
-          preregistryScan: true,
-          preregistryHost: "${DSSC_REGISTRY}",
-          preregistryCredentialsId: "preregistry-auth",
-          findingsThreshold: new groovy.json.JsonBuilder([
-            malware: 0,
-            vulnerabilities: [
-              defcon1: 10,
-              critical: 100,
-              high: 300,
-            ],
-            contents: [
-              defcon1: 0,
-              critical: 0,
-              high: 5,
-            ],
-            checklists: [
-              defcon1: 0,
-              critical: 0,
-              high: 0,
-            ],
-          ]).toString(),
-        ])
-      }
-    )
     stage('Push Image to Registry') {
       script {
         docker.withRegistry("https://${K8S_REGISTRY}", 'ecr:eu-west-1:registry-auth') {
@@ -58,6 +20,47 @@ node {
         }
       }
     }
+    stage ('Check Image with Trend Micro') {
+      withCredentials([
+        usernamePassword([
+          credentialsId: "aws-ecr",
+          usernameVariable: "REGISTRY_USER",
+          passwordVariable: "REGISTRY_PASSWORD",
+        ])
+      ]){
+        smartcheckScan([
+          imageName: "${K8S_REGISTRY}/${REPOSITORY}:latest",
+          smartcheckHost: "${DSSC_SERVICE}",
+          smartcheckCredentialsId: "smartcheck-auth",
+          insecureSkipTLSVerify: true,
+          insecureSkipRegistryTLSVerify: true,
+          imagePullAuth: new groovy.json.JsonBuilder([
+            aws: [
+              region: "eu-west-1",
+              accessKeyID: REGISTRY_USER,
+              secretAccessKey: REGISTRY_PASSWORD,
+              ]
+          ]).toString(),
+          findingsThreshold: new groovy.json.JsonBuilder([
+            malware: 1,
+            vulnerabilities: [
+              defcon1: 0,
+              critical: 50,
+              high: 100,
+            ],
+            contents: [
+              defcon1: 0,
+              critical: 2,
+              high: 0,
+            ],
+            checklists: [
+              defcon1: 0,
+              critical: 0,
+              high: 20,
+            ],
+          ]).toString(),
+        ])
+     }
     stage('Deploy App to Kubernetes') {
       script {
         // secretNamespace: "default",
@@ -76,4 +79,5 @@ node {
       }
     }
   }
+}
 }
