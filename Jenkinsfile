@@ -45,12 +45,12 @@ node {
             vulnerabilities: [
               defcon1: 0,
               critical: 50,
-              high: 100,
+              high: 300,
             ],
             contents: [
               defcon1: 0,
-              critical: 2,
-              high: 0,
+              critical: 0,
+              high: 2,
             ],
             checklists: [
               defcon1: 0,
