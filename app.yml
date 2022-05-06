@@ -12,7 +12,6 @@ metadata:
     app: c1-juice-shop
 spec:
   type: LoadBalancer
-  name: c1-juice-shop
   ports:
   - port: 443
     name: juice-shop
